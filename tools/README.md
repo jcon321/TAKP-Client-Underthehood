@@ -42,6 +42,20 @@ Copy `eqgame.exe` into the repo root before running `analyze.sh`.
 | `rea-mcp.sh` | MCP entry point: sources env.sh then `rea mcp` (node isn't on the system PATH) |
 | `env.sh` | `source` to put java/ghidra/node/rea on PATH |
 
+### Misleading names in the TAKP lists
+
+Besides the two MSVC helpers above (which `FixMsvcHelpers.java` corrects), these
+names from the TAKP function lists don't describe what the code does. They're
+left as they are in the project and dumps:
+
+| Address | TAKP name | What it is |
+|---------|-----------|------------|
+| eqgame 0x004d7a21 | `initializeHotkeyLabels` | Fills the animation table: animation number -> track code (1..11 `C01`..`C11`, 12..16 `D01`..`D05`, 17..25 `L01`..`L09`, 32..38 `P01`..`P07`...), the ids `CDisplay::PlayAnimationTrack` and the server's OP_Animation use |
+| eqgame 0x0049ec7e | `CEverQuest_loadOptions` | The `CDisplay` constructor (called from `CEverQuest::CEverQuest`); Ghidra types its `this` as `CEverQuest`. Among other defaults it stores 0.18 at +0x3c, the minimum ambient `CDisplay::SetAmbientLight` clamps each channel to |
+| eqgfx 0x10050b50 | `processPhysicsEffects` | Light selection, nothing physical: from the region's light list, the lights whose flags share a bit with the mask (0x30000000 actors and uncolored meshes, 0x20000000 meshes with baked colors), ranked by 0.05 r^2 / (d^2 + 1), the brightest N kept (3 for actors, 64 for zone meshes) |
+| eqgfx 0x1004b750, 0x1004b9c0, 0x1004bb40 | `processPhysicsEffects` | Prepare that selected list for one mesh: each light's color x 0.05 r^2 (/ scale^2) and its position (or a directional light's direction) in the mesh's space |
+| eqgfx 0x1004d750 | `applyPhysicsAndLightingEffects` | Adds the selected point and directional lights to a 0x36 mesh's vertex light (point: color x cos / d^2; directional: color x cos, times the actor's floor exposure) |
+
 ## Usage
 
 ```bash
