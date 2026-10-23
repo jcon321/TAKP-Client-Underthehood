@@ -55,6 +55,14 @@ left as they are in the project and dumps:
 | eqgfx 0x10050b50 | `processPhysicsEffects` | Light selection, nothing physical: from the region's light list, the lights whose flags share a bit with the mask (0x30000000 actors and uncolored meshes, 0x20000000 meshes with baked colors), ranked by 0.05 r^2 / (d^2 + 1), the brightest N kept (3 for actors, 64 for zone meshes) |
 | eqgfx 0x1004b750, 0x1004b9c0, 0x1004bb40 | `processPhysicsEffects` | Prepare that selected list for one mesh: each light's color x 0.05 r^2 (/ scale^2) and its position (or a directional light's direction) in the mesh's space |
 | eqgfx 0x1004d750 | `applyPhysicsAndLightingEffects` | Adds the selected point and directional lights to a 0x36 mesh's vertex light (point: color x cos / d^2; directional: color x cos, times the actor's floor exposure) |
+| eqgame 0x005726b0 | `CXWnd_DrawMinimizeButton` | Draws the **close** box: hit test piece 5, the WindowDrawTemplate's CloseBox (+0x190, Normal at +0x194); `DrawWindowAndContents` calls it for style bit 0x8 |
+| eqgame 0x005727b0 | `CXWnd_DrawTitleBar` | Draws the **minimize** box: piece 3, the MinimizeBox (+0x1bc, Normal at +0x1c0); called for style bit 0x20, and its failure traces `DrawMinimizeBox_Failed` |
+| eqgame 0x005728b0 | `CXWnd_DrawCloseButton` | Draws the **tile** box: piece 4, the TileBox (+0x1e8, Normal at +0x1ec); called for style bit 0x10 |
+| eqgame 0x00575060 | `isSpecialEntityActive` | The window's CloseBox template (draw template +0x190) when it has a titlebar and close box (style & 0xc), else 0 |
+| eqgame 0x00575080 | `getEntityWeaponOffset` | The MinimizeBox template (+0x1bc) when style & 0x24 (titlebar, minimize box), else 0 |
+| eqgame 0x005750a0 | `GetTargetPointerIfActive` | The TileBox template (+0x1e8) when style & 0x14 (titlebar, tile box), else 0 |
+| eqgame 0x00571540 | (not in the list; not decompiled) | `CXWnd::GetHitTestRect(piece)`, vtable +0xd0 (`CXWnd` vtable 0x5eaa94). Starts from the rect inside the border (vtable +0xd4, 0x5714b0 `GetInnerRect`). Minimize box (piece 3) is 8 in from the left and 2 down. Close box (piece 5) ends 7 short of the right and is 1 down. Tile box (piece 4) sits just left of the close box. `HitTestUIElement` walks pieces 2..6, then 0x11..0x1c, 7..0xb and 0xc..0x10 by style |
+| eqgame 0x00594b00 | `RenderEntityNameplate` | `CButtonWnd::Draw` (slot +0xc of the vtable 0x5eaf00 that 0x594930 `InitializeCustomWindow`, the button constructor, sets; its traces cite `ButtonWnd.cpp`): the state's template (Normal at +0x124), then the decal (+0x138) at its offset, then the text (grey when disabled, yellow when checked or hovered). `CItemDisplayWnd::SetItem` sets +0x124 to `A_DragItem` and clears +0x138, so an item icon fills the button in place of the XML's `RedIconBackground` |
 
 ## Usage
 
